@@ -1,29 +1,126 @@
 \Chapter{INTRODUCTION}
 \label{intro}
 
-An equation:
-\al{eq:lm}{\Ex(\y)=\X\bb}
+Sparse penalized regression models have been increasingly popular in recent years in statistics and machine learning. They can do variable selection: identifying a small number of features that are associated with the outcome of interest, out of a set of potential features. They are especially favored when dealing with high dimensional data sets that have a large number of features, for example, data sets from gene analysis, image recognition or text mining. They make the scientific interpretation of the models more intuitive and predictions and estimations more stable.
 
-A reference \citep{Tibshirani1996}.
+The sparse penalized regression models cover a broad family of models. First, different regression loss function can be flexibly chosen according to the type of outcomes we are interested in. For example, we can use linear regression loss (the standard loss) to deal with real number outcomes, logistic regression loss to deal with binary outcomes, Cox regression loss to deal with censored time outcomes and etc. Second, we can choose different sparse penalization functions (or penalties), to carry out different variable selection strategy. For example, lasso penalty, elastic net penalty, group lasso penalty etc. Due to the limited length of the thesis, we cannot look at all the models in the family. We will look at the most representative models and show the methods we propose have a great potential to be extended to other members of the family, but we do limit our scope to convex models. 
 
-A figure.
-\begin{figure}[ht!]
- \centering
- \includegraphics[width=0.6\textwidth]{fig1}
- \caption[Short caption]{\label{fig:fig1}Short caption.  More caption.}
-\end{figure}
+Another advantage of sparse penalized regression models in high dimensional analysis is that there are more efficient algorithms to optimize these models, than there are for other variable selection methods as computation becomes very challenging as dimension increases. A popular technique that combined with any existing algorithms is screening, which remove a large proportion of the features from the model optimization problem and reduce it to a low dimensional problem.  However, the screening step its self require intense computation and becomes the new bottleneck of the algorithm. Also, this promising technique has barely been studied in two popular but difficult areas: penalized Cox regression and standard elastic net model.
 
-A table.
-\begin{table}[ht!]
- \ttabbox
- {\caption{\label{tab:tab1}Tables can only have short captions.}}
- {\begin{tabular}{cccc}
-\hline
- & A & B & C \\
-\hline
-A & 1 & 2 & 3 \\
-B & 4 & 5 & 6 \\
-C & 7 & 8 & 9 \\
-\hline
-\end{tabular}}
-\end{table}
+In this thesis, we will both develop general screening framework that screening methods for all spare penalized regression models can fit in and benefit from, and derive novel screening methods for two important models: penalized Cox regression and standard elastic net model. We will focus on screening methods that purely reduce the time cost of the whole optimization problem. The screening methods we propose can be safely combined with any other existing optimization algorithms and will not alter the solution obtained and thus any statistical properties of the solution, as long as the existing optimization algorithms converge to the global optimum. All of our proposed methods are implemented and tested in the publicly available \textbf{biglasso} R package.
+
+In the rest of this chapter, we will first introduce some preliminary concepts and results that are the basic of this thesis, and then briefly cover the structure of the rest of the thesis.
+
+\section{Preliminaries}
+
+\subsection{Convex Optimization}
+
+For a convex function $f:\mathbb{R}^p\xrightarrow[]{}\mathbb{R}$, a vector $\boldsymbol v$ is a subgradient of $f$ at $\boldsymbol x$ iff
+
+\begin{equation}
+    f(\boldsymbol x')-f(\boldsymbol x)\geq \boldsymbol v^T(\boldsymbol x'-\boldsymbol x),\quad\forall \boldsymbol x'\in \mathbb{R}^p.
+\end{equation}
+
+The subdifferential of $f$ at $\boldsymbol x$, denoted as $\partial f(\boldsymbol x)$, is the set of all subgradient of $f$ at $\boldsymbol x$. When $f$ is also differentiable at $\boldsymbol x$, we simply have $\partial f(\boldsymbol x)=\{\nabla f(\boldsymbol x)\}$. 
+
+We consider the following convex optimization problem:
+
+\begin{gather}
+    \begin{aligned}
+        \label{eq:primeintro}
+        \underset{\boldsymbol x}{\min}\quad &f_0(\boldsymbol x)\\
+        \textit{s.t.}\quad &f_i(\boldsymbol x)\leq 0,\quad i=1,2,...,m,\\
+        & A\boldsymbol x=\boldsymbol b,
+    \end{aligned}
+\end{gather}
+
+where $f_0,f_1,...,f_m$ are convex functions, $A\in\mathbb{R}^{n\times p}$ and $\boldsymbol b\in\mathbb{R}^n$. The (Lagrange) dual problem is the maximization of the following (Lagrange) dual function:
+
+\begin{equation}
+    \label{eq:dualintro}
+    g(\boldsymbol u,\boldsymbol v)\equiv \inf\left(f_0(\boldsymbol x)+\sum_{i=1}^m\boldsymbol u_if_i(\boldsymbol x)+\boldsymbol v^T(A\boldsymbol x-\boldsymbol b)\right),
+\end{equation}
+
+where $\boldsymbol u\in\mathbb{R}^m,\boldsymbol v\in\mathbb{R}^n$, subject to $\boldsymbol u_i\geq 0,\quad i=1,...,m$. $g$ will always be a concave function. We also call the original problem \eqref{eq:primeintro} the primal problem. $(\boldsymbol x^*,\boldsymbol u^*,\boldsymbol v^*)$ satisfy KKT conditions iff
+
+\begin{gather}
+    \begin{aligned}
+        f_i(\boldsymbol x^*)\leq 0&,\quad i=1,...,m\\
+        A\boldsymbol x^*=b&,\\
+        \boldsymbol u^*_i\geq 0&,\quad i=1,...,m\\
+        \boldsymbol u^*_i f_i(\boldsymbol x^*)=0&,\quad i=1,...,m\\
+        \boldsymbol 0\in \partial f_0(\boldsymbol x^*)+\sum_{i=1}^m \boldsymbol u_i^*\partial f_i(\boldsymbol x^*)+A^T\boldsymbol v&.
+    \end{aligned}
+\end{gather}
+
+The KKT conditions are sufficient conditions for $\boldsymbol x^*$ and $(\boldsymbol u^*,\boldsymbol v^*)$ to be a solution to the primal and dual problems respectively. The condition $\boldsymbol u_i^*f_i(\boldsymbol x^*)=0$ is also called complementary slackness, because it requires that for each $i$ at most one of $\boldsymbol u_i^*$ and $f_i(\boldsymbol x^*)$ can be nonzero. Note for unconstrained problem, KKT conditions simply reduce to:
+
+\begin{equation}
+    \boldsymbol 0\in \partial f_0(\boldsymbol x^*).
+\end{equation}
+
+Without loss of generality, assume the first $k$ constraint functions $f_1,f_2,...,f_k$ are affine and the rest $m-k$ are not. Then the Slater's condition for the primal problem states that there exists an $\boldsymbol x$ such that
+
+\begin{equation}
+    f_i(\boldsymbol x)\leq 0,\quad i=1,...,k,\quad f_i(\boldsymbol x)<0,\quad i=k+1,...,m,\quad A\boldsymbol x= \boldsymbol b.
+\end{equation}
+
+Apparently, unconstrained problems automatically satisfy Slater's condition. If Slater's condition holds, then KKT conditions (which include the complementary slackness condition) become both sufficient and necessary conditions for a solution and we have the strong duality where the duality gap is 0:
+
+\begin{equation}
+    f_0(\boldsymbol x^*)=g(\boldsymbol u^*,\boldsymbol v^*).
+\end{equation}
+
+Slater's condition is a sufficient condition for the results above, but not necessary. There are other forms of sufficient conditions but Slater's condition is mostly commonly considered because it is simple and covers a large family of optimization problems. 
+
+\subsection{Spare Penalized Regression}
+
+We consider the class of sparse penalized regression model where the estimate of the coefficients $\boldsymbol\beta\in\mathbb{R}^p$ for the $p$ features are the solution to the following type of problem:
+
+\begin{equation}
+    \label{eq:spr}
+    \underset{\boldsymbol\beta}{\min}\quad l(X\boldsymbol\beta)+\lambda \sum_{j=1}^pP(\boldsymbol\beta_j),
+\end{equation}
+
+where $X\in\mathbb{R}^{n\times p}=[\boldsymbol x_1,...,\boldsymbol x_p]$ is the feature matrix containing the $p$ features of $n$ samples from the data. $l:\mathbb{R}^n\xrightarrow[]{}\mathbb{R}$ is a strongly convex differentiable loss function depending on some outcome $\boldsymbol y$ and the distribution used to model the outcome. For linear regression, it can be $||\boldsymbol y-X\boldsymbol\beta||_2^2$. Logistic regression, Poisson regression and Cox regression also have this type of loss functions.  $P:\mathbb{R}\xrightarrow[]{}\mathbb{R}_+$ is a convex penalization function (or penalty) which has $P'(0^+)=-P'(0^-)>0$ and is differentiable else where. The lasso penalty $||\boldsymbol\beta||_1$ and the elastic net penalty $\alpha||\boldsymbol\beta||_1+\frac{1-\alpha}{2}||\boldsymbol\beta||_2^2$ both satisfy these conditions. $\lambda>0$ is a tuning parameter that control the size of penalization. 
+
+In practice, we cannot know the best choice of $\lambda$ beforehand, so we usually solve the model along a path of decreasing $\lambda$ values and chose the $\lambda_l$ that leads to be best model. If we denote the solution given a specific choice of $\lambda$ as $\boldsymbol\beta_\lambda$, then the solutions obtained along the path are called a solution path. If the $\lambda$ values and closely spaced, the solutions at two consecutive $\lambda$ values will be close. After the first solution is obtained, it can be used as a warm start for any algorithm that searches for the next solution. Solution path becomes a very popular practice because it allows fine variable selection while at the same time the warm start allows it to be solved efficiently even if the path contains a large number of $\lambda$ values. 
+
+It directly follows from the previous convex optimization results that the sufficient and necessary condition for $\boldsymbol\beta_{\lambda}$ to be a solution are the KKT conditions:
+
+\begin{equation}
+    \begin{cases}
+        x_j^T\nabla l(X\boldsymbol\beta_\lambda)+\lambda P'([\boldsymbol \beta_\lambda]_j)=0,\quad &[\boldsymbol \beta_\lambda]_j\neq 0,\\
+        |x_j^T\nabla l(X\boldsymbol\beta_\lambda)|\leq \lambda P'(0^+),\quad &[\boldsymbol \beta_\lambda]_j= 0,
+    \end{cases}
+\end{equation}
+
+for all $j=1,...,p$. As a result, some of the coefficients can be exact zero in the solution and variable selection is automatically done. Because of their sufficiency, we can use the conditions to find a solution or validate a proposed solution. On the other hand, because of their necessity, if we can know $|x_j^T\nabla l(X\boldsymbol\beta_\lambda)|< \lambda P'(0^+)$ for some $j$ before obtaining the solution $\boldsymbol\beta_\lambda$, we can safely conclude that $[\beta_\lambda]_j=0$. We if denote $\mathcal{S}_\lambda$ as the set of $j$'s where we fail to conclude $[\beta_\lambda]_j=0$ ($\mathcal{S}_\lambda^c$ is the set of $j$'s where we safely conclude  $[\beta_\lambda]_j=0$) then the full problem \eqref{eq:spr} with dimension $p$ will be equivalent to the reduced problem with dimension $|\mathcal{S}_\lambda|$:
+
+\begin{equation}
+    \underset{\boldsymbol\beta_{\mathcal{S}_\lambda}}{\min}\quad l(X_{\mathcal{S}_\lambda}\boldsymbol\beta_{\mathcal{S}_\lambda})+\lambda \sum_{j\in\mathcal{S}_\lambda}P(\boldsymbol\beta_j),
+\end{equation}
+
+where $X_{\mathcal{S}_\lambda}$ is the submatrix of $X$ containing $j$'th column iff $j\in\mathcal{S}_\lambda$ and $\boldsymbol\beta_{\mathcal{S}_\lambda}$ is a subvector of $\boldsymbol\beta$ containing the $j$'th element iff $j\in\mathcal{S}_\lambda$. In the special case when we have $\lambda$ satisfying:
+
+\begin{equation}
+    \lambda\geq\lambda_{\max}\equiv \underset{j}{\max}\frac{|\boldsymbol x_j^T\nabla l(\boldsymbol0)|}{P'(0^+)},
+\end{equation}
+
+we can safely conclude all the coefficients are 0 as $\boldsymbol\beta_{\lambda}=\boldsymbol0$ satisfies the KKT condition. As a result, if we want to obtain a solution path, it is only interesting to consider a decreasing sequence of $\lambda$ in $(0,\lambda_{\max}]$.
+
+\section{Thesis Structure}
+
+In Chapter \ref{METHOD1}, we will develop a novel adaptive screening framework that can utilize any safe screening rule to efficiently obtain a solution path for a spare penalized regression problem. It reuses the same previous solution as a reference to do screening for multiple future solutions so that the cost of doing screening is greatly reduced. Then it updates the reference adaptively at the timing that best balance the cost and the gain of doing screening. It can be built on top of any optimization algorithms such as coordinate descent \citep{friedman2007pathwise} and any non-safe screening such as strong rule screening \citep{Tibshirani2012} or active set cycling \citep{lee2007efficient}. It is also easily extendable to a any family of sparse penalized regression models given a safe screening rule for that model and we show applications to 3 specific models: standard lasso, lasso penalized logistic regression and group lasso using their corresponding safe rules \citep{wang2013lasso,wang2014safe}. We have shown these applications all outperforms other competing state-of-the-art screening methods by a large margin under almost all scenarios.
+
+In Chapter \ref{METHOD2}, we will derive a novel safe screening rule for lasso penalized Cox regression model \citep{cox1972regression} that can update itself utilizing previous solution in the solution path. Cox regression is a powerful semi-parametric model that analyse features that affect subjects' survival when some of the observed survival times are censored, but it introduces a non-separable loss function while all previous safe screening rules focus on models with separable loss functions. We derive the safe screening rule by looking at the dual problem of an equivalent augmented model. We use numerical studies to investigate its performance in both the traditional sequential screening framework and newly proposed adaptive screening framework. We use both numerical and theoretical results to explain its potential disadvantages due to the extra dimensions we introduce in the augmented model.
+
+In Chapter \ref{METHOD3}, we will derive a novel safe screening rule for standard elastic net problem where the elastic net penalty term has the form
+
+\begin{equation}
+    \lambda P_\alpha(\boldsymbol\beta)=\alpha \lambda ||\boldsymbol\beta||_1+\frac{\alpha}{2}\lambda||\boldsymbol\beta||_2^2.
+\end{equation}
+
+This form decomposes the tuning problem into tuning an important tuning parameter $\lambda$ that controls the overall size of penalty and a less important tuning parameter $\alpha$ that controls the penalty's similarity to lasso penalty. In practice, it allows us to focus on only one tuning parameter $\lambda$ and is favored in most computation packages. Mathematically, the penalty function does not have a fixed shape and cannot be trivially reduced to a lasso model. All previous safe screening methods can only deal with forms of elastic net model that can be reduced to lasso model. To tackle the problem, we consider an intermediate dual problem that is a reshaped problem of the original dual problem and breaks the problem into 2 optimization problems. We build the proposed rule into the adaptive screening framework and show through numerical studies that it outperforms the other existing non-safe screen method sequential strong rule \citep{Tibshirani2012}.
+
+In Chapter \ref{summary}, we summarize the contributions in the thesis and discuss future research directions.
