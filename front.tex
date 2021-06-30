@@ -27,7 +27,11 @@
 
 \newcommand{\abstextwithesis}
 {
-abstract
+Sparse penalized regression models, such as lasso models, are a popular approach for analyzing high-dimensional data among many fields because they can identify important features in the data. The size of modern data sets can be so large that time and memory costs for analyzing them become great burdens. Thus, developing efficient algorithms is important. Feature screening techniques have proven to be effective at increasing efficiency, as they allow for considerable dimension reduction during the optimization process. In this thesis, we develop both mathematical feature screening rules that eliminate features without altering the solution, and algorithms that carry out feature screening in an efficient way. 
+
+We propose an adaptive hybrid screening algorithm framework where screening is carried out adaptively along the path of tuning parameter values, reusing previous solutions to reduce heavy screening computations if they fail to significantly reduce dimensionality. We focus on the standard lasso model and sparse logistic model, but the proposed framework is flexible and can be easily extended to different types of sparse penalized regression models by utilizing any safe rules, if such rules exist and are capable of updates based on previous solutions in the path. Through experiments involving a wide variety of simulated and real data sets, we show that the adaptive hybrid methods significantly outperform other state-of-the-art methods, with the greatest speedup occurring in the most challenging scenarios.
+
+We also derive novel safe screening rules for two popular but challenging models: lasso penalized Cox regression and standard elastic net. There are no existing safe rules for these models that can utilize previous solutions along the path. Cox regression is a powerful model for survival analysis but it introduces a non-separable loss function, greatly complicated the development of safe screening rules. Our safe rule is based on constructing an augmented dual form that can be broken down into separable terms. The elastic net penalty is an extension of the lasso that has better stability and can identity groups of correlated important features, but unlike the lasso, the shape of the penalty varies along the solution path and this prevents the derivation of safe rules through standard approaches. We construct a reshaped intermediate dual that breaks the screening problem into two easier problems and derive a safe rule by combining the two problems. Both safe rules are built into the adaptive screening framework and are proven to improve efficiency, especially for elastic net model. 
 }
 
 
@@ -35,13 +39,14 @@ abstract
  
 \newcommand{\acknowledgement}
 {
-acknowledgment 
+I would like to express my thanks to my advisor Professor Patrick Breheny. He provides me with interesting directions for my research and my works cannot be done without his guidance. He also patiently relieves my confusion and gives me supportive advice for improvement. I would also like to thank my other committee members, Professors Kung-Sik Chan, Jian Huang, Luke Tierney, and Tianbao Yang, for their helpful suggestions and comments. Besides, I want to thank all the great friends I met in University of Iowa for adding fun to my life outside of research. Last, I want to thank my mom, my dad and my wife. Their encouragement and love support me through this arduous journey.
 }
 
 \newcommand{\pubabstextwithesis}
 {
-Public abstract
+Ultra high-dimensional data (data that collect a large number, i.e. millions, of features about subjects) has become a popular topic in many fields such as genetic studies, image recognition, and natural language processing, as these data sets are more and more easily available. Sparse penalized regression models are powerful ways to analyze this type of data because they can identify important features in the data. Efficient algorithms for these models, thus, have become valuable. Screening methods can identify features that will not be in the model and eliminate those features before solving the model and greatly reduce time and memory costs. This thesis focuses on developing more efficient screening methods and extending screening methods to more models.
 
+First, we propose an adaptive hybrid screening algorithm framework that does screening adaptively along the path of tuning parameter values to reduce the computation costs of screening with little impact on its ability to eliminate features. Second, we derive a screening rule for lasso penalized Cox regression models, a powerful technique for identifying important features in predicting patient survival. Third, we derive a screening rule for the elastic net, which has good performance when features are correlated. Last, all the proposed methods are implemented and tested in the publicly available \textbf{biglasso} R package. They show significant improvement in efficiency compared to other existing methods.
 }
 
 \beforepreface
