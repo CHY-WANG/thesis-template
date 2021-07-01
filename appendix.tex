@@ -96,10 +96,12 @@ It can be shown that $\frac{\lambda_1}{\lambda_0}\Theta_{0}\in\mathcal{F}_{1}$ b
     \item Other constraints obviously hold.
 \end{itemize}
 Therefore $\Theta_{1},\frac{\lambda_1}{\lambda_0}\Theta_{0}\in \mathcal{F}_{1}$. The second order expansion of $g$ can be written as:
-\begin{equation}
-    \label{eq:thm2.1}
-    \left\langle\nabla^2 g(\Theta''),\left(\Theta_{1}-\frac{\lambda_1}{\lambda_0}\Theta_{0}\right)^{\circ 2}\right\rangle=2\left(g\left(\frac{\lambda_1}{\lambda_0}\Theta_{0}\right)-g(\Theta_{1})+\left\langle\nabla g\left(\Theta_{1}\right),\left(\Theta_{1}-\frac{\lambda_1}{\lambda_0}\Theta_{0}\right)\right\rangle\right),
-\end{equation}
+\begin{gather}
+\label{eq:thm2.1}
+    \begin{aligned}
+        &\left\langle\nabla^2g(\Theta''),\left(\Theta_{1}-\frac{\lambda_1}{\lambda_0}\Theta_{0}\right)^{\circ 2}\right\rangle\\&=2\left(g\left(\frac{\lambda_1}{\lambda_0}\Theta_{0}\right)-g(\Theta_{1})+\left\langle\nabla g\left(\Theta_{1}\right),\left(\Theta_{1}-\frac{\lambda_1}{\lambda_0}\Theta_{0}\right)\right\rangle\right),
+    \end{aligned}
+\end{gather}
  for some $\Theta''\in[\Theta_1,\frac{\lambda}{\lambda_0}\Theta_{0}]\subseteq \mathcal{F}_1$. Looking at the gradient term, the Slater's condition and thus the KKT condition for the dual problem \eqref{eq:dualTheta} holds at $\lambda_1$:
 \begin{equation}
     \label{eq:thm2.3}
@@ -386,8 +388,8 @@ The maximum of $\Tilde{T}^\xi_j$ can be bounded by the sum of two maximums:
 \begin{equation}
     \begin{gathered}
         \underset{\boldsymbol\mu'\in\mathcal{A}^1}{\mathrm{max}}\Tilde{T}^\xi_j(\lambda_1,\lambda_0,t|\boldsymbol\mu')\\
-        =\underset{\boldsymbol\mu'\in\mathcal{A}^1}{\mathrm{max}}\left[\xi\left( \frac{1}{2}(\frac{1-t}{\lambda_0}+c)\boldsymbol x_j^T\boldsymbol y+\frac{t+1}{2}\boldsymbol x_j^T\boldsymbol\theta'\right)+\frac{\norm{\boldsymbol x_j}_2|1-t|}{2}\left\Vert\binom{\boldsymbol\theta'-\left(\frac{1}{\lambda_0}+\frac{c}{1-t}\right)\boldsymbol y}{\boldsymbol\gamma'}\right\Vert_2\right]\\
-        \leq \underset{\boldsymbol\mu'\in\mathcal{A}^1}{\mathrm{max}}\xi\left( \frac{1}{2}(\frac{1-t}{\lambda_0}+c)\boldsymbol x_j^T\boldsymbol y+\frac{t+1}{2}\boldsymbol x_j^T\boldsymbol\theta'\right)+\underset{\boldsymbol\mu'\in\mathcal{A}^1}{\mathrm{max}}\frac{\norm{\boldsymbol x_j}_2|1-t|}{2}\left\Vert\binom{\boldsymbol\theta'-\left(\frac{1}{\lambda_0}+\frac{c}{1-t}\right)\boldsymbol y}{\boldsymbol\gamma'}\right\Vert_2.
+        =\underset{\boldsymbol\mu'\in\mathcal{A}^1}{\mathrm{max}}\left[\xi\left( \frac{1-t+c\lambda_0}{2\lambda_0}\boldsymbol x_j^T\boldsymbol y+\frac{t+1}{2}\boldsymbol x_j^T\boldsymbol\theta'\right)+\frac{\norm{\boldsymbol x_j}_2|1-t|}{2}\left\Vert\binom{\boldsymbol\theta'-\frac{1-t+c\lambda_0}{(1-t)\lambda_0}\boldsymbol y}{\boldsymbol\gamma'}\right\Vert_2\right]\\
+        \leq \underset{\boldsymbol\mu'\in\mathcal{A}^1}{\mathrm{max}}\xi\left( \frac{1-t+c\lambda_0}{2\lambda_0}\boldsymbol x_j^T\boldsymbol y+\frac{t+1}{2}\boldsymbol x_j^T\boldsymbol\theta'\right)+\underset{\boldsymbol\mu'\in\mathcal{A}^1}{\mathrm{max}}\frac{\norm{\boldsymbol x_j}_2|1-t|}{2}\left\Vert\binom{\boldsymbol\theta'-\frac{1-t+c\lambda_0}{(1-t)\lambda_0}\boldsymbol y}{\boldsymbol\gamma'}\right\Vert_2.
     \end{gathered}
 \end{equation}
 
@@ -399,11 +401,11 @@ The first maximization problem is maximizing a linear function in a ball with ce
     \end{aligned}
 \end{gather}
 
-The second maximization problem is maximizing the distance to $\left((\frac{1}{\lambda_0}+\frac{c}{1-t})\boldsymbol y,\boldsymbol 0\right)$ in a ball with center $\boldsymbol c_1$ and radius $r_1$, so the maximum can also be easily obtained as:
+The second maximization problem is maximizing the distance to $\left(\frac{1-t+c\lambda_0}{(1-t)\lambda_0}\boldsymbol y,\boldsymbol 0\right)$ in a ball with center $\boldsymbol c_1$ and radius $r_1$, so the maximum can also be easily obtained as:
 \begin{gather}
     \begin{aligned}
-        \frac{\norm{\boldsymbol x_j}_2|1-t|}{2}\left(\left\Vert\boldsymbol c_1-\binom{(\frac{1}{\lambda_0}+\frac{c}{1-t})\boldsymbol y}{\boldsymbol 0}\right\Vert_2+r_1\right)\\
-        =\frac{\norm{\boldsymbol x_j}_2}{2}\left\Vert\binom{(1-t)\boldsymbol\theta_{0}-\left(\frac{1-t}{\lambda_0}+c\right)\boldsymbol y}{(1-t)d\boldsymbol\gamma_{0}}\right\Vert_2+\frac{\norm{\boldsymbol x_j}_2|1-t|}{2}\sqrt{d^2-1}\norm{\boldsymbol\gamma_0}_2.
+        \frac{\norm{\boldsymbol x_j}_2|1-t|}{2}\left(\left\Vert\boldsymbol c_1-\binom{\frac{1-t+c\lambda_0}{(1-t)\lambda_0}\boldsymbol y}{\boldsymbol 0}\right\Vert_2+r_1\right)\\
+        =\frac{\norm{\boldsymbol x_j}_2}{2}\left\Vert\binom{(1-t)\boldsymbol\theta_{0}-\frac{1-t+c\lambda_0}{\lambda_0}\boldsymbol y}{(1-t)d\boldsymbol\gamma_{0}}\right\Vert_2+\frac{\norm{\boldsymbol x_j}_2|1-t|}{2}\sqrt{d^2-1}\norm{\boldsymbol\gamma_0}_2.
     \end{aligned}
 \end{gather}
 

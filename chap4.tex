@@ -21,7 +21,7 @@ The elastic net and lasso methods have had great success in high dimensional dat
 
 Screening methods for the elastic net, however, are still very limited. If we consider the naive form \eqref{eq:enet0} and treat $\lambda_2$ as fixed, then the $L_2$ penalty can be incorporated into the loss, making the problem equivalent to the lasso problem and allowing the use of lasso screening methods \citep{xu2019}. However, this is not relevant in practice as it is form \eqref{eq:enet} that is actually used in real data analysis. Zeng et al. \citep{Zeng2021} proposed the BEDPP screening rule for elastic net, but it cannot utilize previous solutions and as a result rapidly loses power along the solution path. There are, however, unsafe screening rules such as the strong rule \citep{Tibshirani2012} that can be applied to the elastic net. Such rules, however, require post-convergence checks to make sure no features were mistakenly eliminated. Strong rules nevertheless provide significant speedups in a large class of problems including the lasso and elastic net, and have been widely used, for example, in \textbf{glmnet}. However, recently, the adaptive screening framework proposed in Chapter \ref{METHOD1}, which adaptively reuses previous solutions as a reference when applying safe screening rules, has been shown to outperform other screening methods, including strong rule screening, by a large margin for solving the lasso problem. This framework has not yet been applied to the elastic net, however, as no safe screening rule that can utilize previous solutions has been developed.
 
-In this paper, we propose a powerful, adaptive safe screening method for the elastic net problem that efficiently utilizes previous solutions as references. In section 2 we derive the Sequential Projecting And Reshaping Safe Elimination (SPARSE) rule and incorporate it into the adaptive screening framework to form an adaptive screening method. In section 3, we carry out experiments on both synthetic and real data sets to compare our method with strong rules, the other state-of-the-art screening method. In section 4, we discuss the results and some some additional remarks.
+In this paper, we propose a powerful, adaptive safe screening method for the elastic net problem that efficiently utilizes previous solutions as references. In section 2 we derive the Sequential dual Projecting And Reshaping Safe Elimination (SPARSE) rule and incorporate it into the adaptive screening framework to form an adaptive screening method. In section 3, we carry out experiments on both synthetic and real data sets to compare our method with strong rules, the other state-of-the-art screening method. In section 4, we discuss the results and some some additional remarks.
 
 \section{Screening Method}
 \subsection{Problem Formulation}
@@ -161,20 +161,15 @@ where we define $0\cdot\norm{\boldsymbol v_1+\frac{\boldsymbol v_2}{0}}_2\equiv 
     then $T^\xi_j(\lambda_1,\lambda_0,t|\boldsymbol\mu_0)\geq\underset{\boldsymbol\mu'\in\mathcal{A}^1(\lambda_1,\lambda_0|\boldsymbol\mu_0)}{\mathrm{max}}\Tilde{T}^\xi_j(\lambda_1,\lambda_0,t|\boldsymbol\mu')$ for all $t\geq0$.
 \end{theorem}
 
-If we define $\boldsymbol r_0\equiv \boldsymbol y-X\boldsymbol\beta_{0}$ and $\hat{\boldsymbol y}_{0}\equiv X\boldsymbol\beta_{0}$, then the results above can be expressed in primal variables:
-\begin{align*}
-    T^\xi_j(&\lambda_1,\lambda_0,t|\boldsymbol\mu_0)=  \left(\frac{1-t}{2\lambda_0}+\frac{c}{2}\right)\xi\boldsymbol x_j^T \boldsymbol y+\frac{t+1}{2\lambda_0}\xi \boldsymbol x_j^T \boldsymbol r_{0}\\
-    &+\frac{t+1+|1-t|}{2\lambda_0}\norm{\boldsymbol x_j}_2\sqrt{(d^2-1)n(1-\alpha) \lambda_0}\norm{\boldsymbol\beta_{0}}_2\\
-    &+\frac{\norm{\boldsymbol x_j}_2}{2\lambda_0}\sqrt{(1-t)^2\norm{\hat{\boldsymbol y}_{0}}_2^2+c^2\lambda_0^2\norm{\boldsymbol y}_2^2+2(1-t)c\lambda_0 \boldsymbol y^T\hat{\boldsymbol y}_{0}+(1-t)^2d^2n(1-\alpha)\lambda_0\norm{\boldsymbol\beta_{0}}_2^2}.
-\end{align*}
-
-Since $T_j(\lambda_1,\lambda_0,t|\boldsymbol\mu_0)$ maximizes the above over $\xi=-1,1$,
-\begin{align}
+If we define $\boldsymbol r_0\equiv \boldsymbol y-X\boldsymbol\beta_{0}$ and $\hat{\boldsymbol y}_{0}\equiv X\boldsymbol\beta_{0}$, then by observing that $T_j(\lambda_1,\lambda_0,t|\boldsymbol\mu_0)$ maximizes $T_j^\xi(\lambda_1,\lambda_0,t|\boldsymbol\mu_0)$ over $\xi=-1,1$, $T_j(\lambda_1,\lambda_0,t|\boldsymbol\mu_0)$ can be expressed in primal variables:
+\begin{gather}
     \label{eq:t}
-    T_j(&\lambda_1,\lambda_0,t|\boldsymbol\mu_0)= \left| \left(\frac{1-t}{2\lambda_0}+\frac{c}{2}\right)\boldsymbol x_j^T \boldsymbol y+\frac{t+1}{2\lambda_0} \boldsymbol x_j^T \boldsymbol r_{0}\right|\\
-    &+\frac{t+1+|1-t|}{2\lambda_0}\norm{\boldsymbol x_j}_2\sqrt{(d^2-1)n(1-\alpha)\lambda_0 }\norm{\boldsymbol\beta_{0}}_2\\
-    &+\frac{\norm{\boldsymbol x_j}_2}{2\lambda_0}\sqrt{(1-t)^2\norm{\hat{\boldsymbol y}_{0}}_2^2+c^2\lambda_0^2\norm{\boldsymbol y}_2^2+2(1-t)c\lambda_0 \boldsymbol y^T\hat{\boldsymbol y}_{0}+(1-t)^2d^2n(1-\alpha)\lambda_0\norm{\boldsymbol\beta_{0}}_2^2}.
-\end{align}
+    \begin{aligned}
+        &T_j(\lambda_1,\lambda_0,t|\boldsymbol\mu_0)= \left| \left(\frac{1-t}{2\lambda_0}+\frac{c}{2}\right)\boldsymbol x_j^T \boldsymbol y+\frac{t+1}{2\lambda_0} \boldsymbol x_j^T \boldsymbol r_{0}\right|\\
+        &+\frac{t+1+|1-t|}{2\lambda_0}||\boldsymbol x_j||_2\sqrt{(d^2-1)n(1-\alpha)\lambda_0 }||\boldsymbol\beta_{0}||_2\\
+        &+\frac{||\boldsymbol x_j||_2}{2\lambda_0}\sqrt{(1-t)^2||\hat{\boldsymbol y}_{0}||_2^2+c^2\lambda_0^2||\boldsymbol y||_2^2+2(1-t)c\lambda_0 \boldsymbol y^T\hat{\boldsymbol y}_{0}+(1-t)^2d^2n(1-\alpha)\lambda_0||\boldsymbol\beta_{0}||_2^2}.
+    \end{aligned}
+\end{gather}
 
 Last, we need to choose a $t\geq 0$. An optimal choice will be the $t$ that minimizes $T^\xi_j(\lambda_1,\lambda_0,t|\boldsymbol\mu_0)$. However, this choice results in a complicated form for $t$. Furthermore, this would involve choosing a different value of $t$ for each feature, which involves additional computation costs that may outweigh any gains from screening. Instead, we choose $t$ by minimizing the simpler objective
 \begin{equation}
