@@ -21,14 +21,14 @@ In a survival analysis, we collect data on $n$ subjects of the form $\{(t_i,y_i,
 The lasso penalized Cox regression, with the Breslow approximation \citep{breslow1974covariance} for tied failure times, consists of the optimization problem
 \begin{equation}
     \label{eq:cox}
-    \underset{\beta\in \mathbb{R}^p}{\mathrm{min}}-y^TX\beta+\sum_{k=1}^f d_k\log\left(\sum_{i=1}^n \delta_{ki} e^{\tilde{x}_i^T\beta}\right)+n\lambda||\beta||_1,
+    \underset{\beta\in \mathbb{R}^p}{\mathrm{min}}-y^TX\beta+\sum_{k=1}^f d_k\log\left(\sum_{i=1}^n \delta_{ki} e^{\tilde{x}_i^T\beta}\right)+n\lambda\norm{\beta}_1,
 \end{equation}
 where $\beta\in\mathbb{R}^p$ is the coefficient vector corresponding to the $p$ features and $\lambda>0$ is the regularization parameter that controls the size of lasso penalty. A dual form of \eqref{eq:cox} is given by (see Appendix~\ref{sec:dualcox} for details):
 \begin{gather}
         \label{eq:dualTheta}
         \underset{\Theta\in \mathbb{R}^{f\times n}}{\mathrm{min}}g(\Theta)\equiv\sum_{k=1}^f\sum_{i=1}^n\delta_{ki}(Y_{ki}+d_k^{1/2}\Theta_{ki})\log\left(\frac{Y_{ki}}{d_k}+\frac{\Theta_{ki}}{d_k^{1/2}}\right)\\
         \begin{aligned}s.t.\quad \Theta\in \mathcal{F}_\lambda\equiv\{\Theta:\quad
-            &||X^T\Theta^Td^{1/2}||_\infty\leq n\lambda,\quad D^{1/2}\Theta+Y+(1-\Delta)> 0,\\& \Theta\circ(1-\Delta)=0,\quad \Theta\mathbf{1}=0\}\nonumber,
+            &\norm{X^T\Theta^Td^{1/2}}_\infty\leq n\lambda,\quad D^{1/2}\Theta+Y+(1-\Delta)> 0,\\& \Theta\circ(1-\Delta)=0,\quad \Theta\mathbf{1}=0\}\nonumber,
         \end{aligned}
 \end{gather}
 where $\Theta\in \mathbb{R}^{f\times n}$ is the dual variable, $D=\textrm{diag}(d)$, ``$>$'' is element wise greater-than, $(\cdot)^{1/2}$ is the element wise square root, $\circ$ is element wise product, and we define $0\log 0$ to be 0. The dual problem therefore consists of minimizing the convex function $g(\Theta)$ within a convex feasible set $\mathcal{F}_\lambda$. Letting $\beta_\lambda$ denote the solution to the primal problem at penalty parameter value $\lambda$ and $\Theta_{\lambda}$ denote the corresponding dual solution, the primal solution and dual solution are connected by
@@ -74,7 +74,7 @@ The lemma also implies that $\mathcal{F}_{1}\subseteq\mathcal{F}_{\infty}\equiv\
 The dual function $g(\Theta)$ is twice differentiable in $\mathcal{F}_{\infty}$, so by its second order expansion we have:
 \begin{equation}
         \label{eq:expand}
-        g(\Theta_{1})-g(\Theta_{0})-\langle\nabla g(\Theta_{0}),\Theta_{1}-\Theta_{0}\rangle=\frac{1}{2}\langle\nabla^2 g(\Theta''),(\Theta_{1}-\Theta_{0})^{\circ 2}\rangle,%\geq \frac{1}{2}||\Theta'-\Theta||_2^2,
+        g(\Theta_{1})-g(\Theta_{0})-\langle\nabla g(\Theta_{0}),\Theta_{1}-\Theta_{0}\rangle=\frac{1}{2}\langle\nabla^2 g(\Theta''),(\Theta_{1}-\Theta_{0})^{\circ 2}\rangle,%\geq \frac{1}{2}\norm{\Theta'-\Theta}_2^2,
 \end{equation}
 for any $\lambda_1<\lambda_{0}\in (0,\lambda_\textrm{max}]$, where $(\cdot)^{\circ2}$ is element-wise square, $\\\langle A,B\rangle=\sum_{i=1}^n\sum_{i'=1}^mA_{ii'}B_{ii'}$ for any $n\times m$ matrices $A$ and $B$, and $\Theta''$ is some point on the line segment between $\Theta_{1}$ and $\Theta_{0}$. Because $\Theta_{1}$ and $\Theta_{0}$ are in the convex set $\mathcal{F}_{0}$, $\Theta''$ is also in $\mathcal{F}_{0}$ and thus in $\mathcal{F}_{\infty}$. Note that
 \begin{align*}
@@ -156,20 +156,19 @@ The condition $P_{\mathbf{1}}x_j \ne 0$ simply means that $X_{ij}$ is not consta
     Let
     \begin{equation}
         \label{eq:prod}
-        ||x||_\psi\equiv\sqrt{\sum_{k=1}^f\frac{d_k}{4}\left(\max_{i:\delta_{ki}=1}x_i-\min_{i:\delta_{ki}=1}x_i\right)^2}.
+        \norm{x}_\psi\equiv\sqrt{\sum_{k=1}^f\frac{d_k}{4}\left(\max_{i:\delta_{ki}=1}x_i-\min_{i:\delta_{ki}=1}x_i\right)^2}.
     \end{equation}
     If $P_{\mathbf{1}}x_j\neq 0$,
     \begin{equation}
         \label{eq:gbbar}
-        \xi x_j^T\Theta_{1}d^{1/2}\leq T^*_{\xi,j}(\lambda_1,\lambda_0;\Theta_{0},\Theta'')\leq T_{\xi,j}(\lambda_1,\lambda_0;\Theta_{0})\equiv\frac{\lambda_1}{\lambda_0}\xi x_j^T\Theta_{0}^Td^{1/2}+r(\lambda_1,\lambda_0)||x_j||_\psi.
+        \xi x_j^T\Theta_{1}d^{1/2}\leq T^*_{\xi,j}(\lambda_1,\lambda_0;\Theta_{0},\Theta'')\leq T_{\xi,j}(\lambda_1,\lambda_0;\Theta_{0})\equiv\frac{\lambda_1}{\lambda_0}\xi x_j^T\Theta_{0}^Td^{1/2}+r(\lambda_1,\lambda_0)\norm{x_j}_\psi.
     \end{equation}
 \end{theorem}
 
 With this result, we finally arrive at an upper bound,
-
 \begin{equation}
     \label{eq:bound}
-    T_j(\lambda_1,\lambda_0;\Theta_{0})\equiv\max_{\xi=-1,1}\{T_{\xi,j}(\lambda_1,\lambda_0;\Theta_{0})\}=\frac{\lambda_1}{\lambda_0}\left| x_j^T\Theta_{0}^Td^{1/2}\right|+r(\lambda_1,\lambda_0)||x_j||_\psi,
+    T_j(\lambda_1,\lambda_0;\Theta_{0})\equiv\max_{\xi=-1,1}\{T_{\xi,j}(\lambda_1,\lambda_0;\Theta_{0})\}=\frac{\lambda_1}{\lambda_0}\left| x_j^T\Theta_{0}^Td^{1/2}\right|+r(\lambda_1,\lambda_0)\norm{x_j}_\psi,
 \end{equation}
 for $|x_j^T\Theta^T_{1}d^{1/2}|$ that does not depend on any unknown quantities. 
 
@@ -217,12 +216,12 @@ The semiparametric nature of Cox regression makes it very different from other r
 
 For a general class of lasso penalized convex problems, the problem can be defined as:
 \begin{equation}
-    \underset{\beta,\beta_0\in \mathbb{R}^p}{\mathrm{min}}l(X\beta+x_0^T\beta_0)+n\lambda||\beta||_1,
+    \underset{\beta,\beta_0\in \mathbb{R}^p}{\mathrm{min}}l(X\beta+x_0^T\beta_0)+n\lambda\norm{\beta}_1,
 \end{equation}
 where $l$ is a closed convex twice differentiable function, $x_0$ is a known vector and $\beta_0$ is an unpenalized coefficient. Standard lasso, lasso penalized Cox regression, lasso penalized Logistic regression and a number of lasso type problems can all be expressed as the form above. One simple construction of the dual form is:
 \begin{gather}
     \begin{aligned}
-         \underset{\theta\in \mathbb{R}^n}{\mathrm{min}} g(\theta)\quad s.t.\quad x_0^T\theta=0,||X^T\theta||_\infty\leq n\lambda
+         \underset{\theta\in \mathbb{R}^n}{\mathrm{min}} g(\theta)\quad s.t.\quad x_0^T\theta=0,\norm{X^T\theta}_\infty\leq n\lambda
     \end{aligned}
 \end{gather}
 where $g(\theta)=\max_z \theta^Tz-l(z)$ is the conjugate of $l$, which is also convex and $\theta$ is the $n$-dimensional dual variable.

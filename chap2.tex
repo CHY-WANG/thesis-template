@@ -6,9 +6,9 @@
 The least absolute shrinkage and selection operator, or lasso \citep{tibshirani1996regression}, is a popular model in statistics and machine learning, especially in high-dimensional problems. The model can be defined as the following modification of the least squares optimization problem:
 \begin{equation}
   \label{eq:lasso}
-  \hat{\beta}(\lambda)=\underset{\beta\in \mathbb{R}^p}{\mathrm{argmin}}\frac{1}{2n}||y-X\beta||_2^2+\lambda||\beta||_1,
+  \hat{\beta}(\lambda)=\underset{\beta\in \mathbb{R}^p}{\mathrm{argmin}}\frac{1}{2n}\norm{y-X\beta}_2^2+\lambda\norm{\beta}_1,
 \end{equation}
-where $y$ is an $n\times 1$ vector of responses, $X=(x_1,x_2,...,x_p)$ is an $n\times p$ matrix of features, $\beta\in \mathbb{R}^p$ is the $p\times 1$ coefficient vector and $\lambda$ is the regularization tuning parameter. Throughout, we use $||\cdot||_2$ denotes the $l_2$ (Euclidean) norm and $||\cdot||_1$ denotes the $l_1$ norm. 
+where $y$ is an $n\times 1$ vector of responses, $X=(x_1,x_2,...,x_p)$ is an $n\times p$ matrix of features, $\beta\in \mathbb{R}^p$ is the $p\times 1$ coefficient vector and $\lambda$ is the regularization tuning parameter. Throughout, we use $\norm{\cdot}_2$ denotes the $l_2$ (Euclidean) norm and $\norm{\cdot}_1$ denotes the $l_1$ norm. 
 
 The lasso model has several attractive properties compared to least squares regression, including increased stability of estimation, increased prediction accuracy, and automatic variable selection arising from the fact that it yields sparse estimates of $\beta$.  As a result, it is widely applied in different fields, such as gene expression data analysis, image recognition and text mining, and has been extended in several ways, such as group lasso \citep{yuan2006model}, elastic net \citep{zou2005regularization} and sparse generalized linear models. Because of its wide popularity, solving the lasso efficiently is an important topic in statistics and machine learning.
 
@@ -89,7 +89,7 @@ The EDPP rules are derived from the dual formulation of the lasso problem and pr
     For the lasso problem \eqref{eq:lasso}, let $\lambda_0:=\max_j|x_j^Ty/n|$ and $x_*=\arg \max_{x_j}|x_j^Ty/n|$. Under \eqref{eq:std} and for any $\lambda\in(0,\lambda_0]$, we have $\hat{\beta}_j(\lambda)=0$ if
     \begin{equation}
         \label{eq:bedpp}
-        |(\lambda_0+\lambda)x_j^Ty-(\lambda_0-\lambda)sign(x_*^Ty)\lambda_0x_j^Tx_*|<2n\lambda_0\lambda-(\lambda_0-\lambda)\sqrt{n||y||_2^2-n^2\lambda_0^2}.
+        |(\lambda_0+\lambda)x_j^Ty-(\lambda_0-\lambda)sign(x_*^Ty)\lambda_0x_j^Tx_*|<2n\lambda_0\lambda-(\lambda_0-\lambda)\sqrt{n\norm{y}_2^2-n^2\lambda_0^2}.
     \end{equation}
 \end{theorem}
 
@@ -101,7 +101,7 @@ The EDPP rules are derived from the dual formulation of the lasso problem and pr
         \begin{equation}
             \label{eq:sedpp}
             \begin{split}
-                &\left|2\lambda_{l+1}x_j^Tr(\lambda_l)+(\lambda_l-\lambda_{l+1})\left( x_j^Ty-\frac{y^T\hat{y}(\lambda_l)x_j^T\hat{y}(\lambda_l)}{||\hat{y}(\lambda_l)||_2^2}\right)\right|\\&<2n\lambda_l\lambda_{l+1}-(\lambda_l-\lambda_{l+1})\sqrt{n||y||_2^2-\frac{n(y^T\hat{y}(\lambda_l))^2}{||\hat{y}(\lambda_l)||_2^2}}
+                &\left|2\lambda_{l+1}x_j^Tr(\lambda_l)+(\lambda_l-\lambda_{l+1})\left( x_j^Ty-\frac{y^T\hat{y}(\lambda_l)x_j^T\hat{y}(\lambda_l)}{\norm{\hat{y}(\lambda_l)}_2^2}\right)\right|\\&<2n\lambda_l\lambda_{l+1}-(\lambda_l-\lambda_{l+1})\sqrt{n\norm{y}_2^2-\frac{n(y^T\hat{y}(\lambda_l))^2}{\norm{\hat{y}(\lambda_l)}_2^2}}
             \end{split}
         \end{equation}
         \item For l=0, i.e., $\lambda_l=\lambda_0$, SEDPP rule reduces to BEDPP rule. $\hat{\beta}_j(\lambda_1)=0$ if \eqref{eq:bedpp} holds with $\lambda=\lambda_1$.
@@ -143,13 +143,13 @@ The Adaptive EDPP rule can be stated in the following theorem, which simply rest
         \begin{equation}
             \label{eq:aedpp1}
             \begin{split}
-                &\left|2\lambda_{l+b}x_j^Tr(\lambda_l)+(\lambda_l-\lambda_{l+b})\left( x_j^Ty-\frac{y^T\hat{y}(\lambda_l)x_j^T\hat{y}(\lambda_l)}{||\hat{y}(\lambda_l)||_2^2}\right)\right|\\&<2n\lambda_l\lambda_{l+b}-(\lambda_l-\lambda_{l+b})\sqrt{n||y||_2^2-\frac{n(y^T\hat{y}(\lambda_l))^2}{||\hat{y}(\lambda_l)||_2^2}}
+                &\left|2\lambda_{l+b}x_j^Tr(\lambda_l)+(\lambda_l-\lambda_{l+b})\left( x_j^Ty-\frac{y^T\hat{y}(\lambda_l)x_j^T\hat{y}(\lambda_l)}{\norm{\hat{y}(\lambda_l)}_2^2}\right)\right|\\&<2n\lambda_l\lambda_{l+b}-(\lambda_l-\lambda_{l+b})\sqrt{n\norm{y}_2^2-\frac{n(y^T\hat{y}(\lambda_l))^2}{\norm{\hat{y}(\lambda_l)}_2^2}}
             \end{split}
         \end{equation}
         \item For l=0, i.e., $\lambda_l=\lambda_0$, then for some next update point $B$ and any $b$ s.t. $0<b\leq B\leq L$, $\hat{\beta}_j(\lambda_{b})=0$ if
         \begin{equation}
             \label{eq:aedpp2}
-            |(\lambda_0+\lambda_b)x_j^Ty-(\lambda_0-\lambda_b)sign(x_*^Ty)\lambda_0x_j^Tx_*|<2n\lambda_0\lambda_b-(\lambda_0-\lambda_b)\sqrt{n||y||_2^2-n^2\lambda_0^2}.
+            |(\lambda_0+\lambda_b)x_j^Ty-(\lambda_0-\lambda_b)sign(x_*^Ty)\lambda_0x_j^Tx_*|<2n\lambda_0\lambda_b-(\lambda_0-\lambda_b)\sqrt{n\norm{y}_2^2-n^2\lambda_0^2}.
         \end{equation}
     \end{enumerate}
 \end{theorem}
@@ -264,7 +264,7 @@ Consider the sparse logistic regression model where estimates of the coefficient
 \begin{equation}
     \label{eq:logis}
     %\hat{\beta}(\lambda)=\underset{(\beta,\beta_0)\in \mathbb{R}^p\times\mathbb{R}^1}{\mathrm{argmin}}
-  -\frac{1}{n} \sum_{i=1}^n \big\{y_i\log\pi_i(\beta) + (1-y_i)\log(1 -\pi_i(\beta))\big\} + \lambda||\beta||_1,
+  -\frac{1}{n} \sum_{i=1}^n \big\{y_i\log\pi_i(\beta) + (1-y_i)\log(1 -\pi_i(\beta))\big\} + \lambda\norm{\beta}_1,
 \end{equation}
 where $\pi(\beta)=\{\pi_i(\beta)\}_{i=1}^n=\{p(y_i=1|x_{i1},x_{i2},...,x_{ip})\}_{i=1}^n=\{e^{\eta_i(\beta)}/(1+e^{\eta_i(\beta)})\}_{i=1}^n$ is the predicted value vector and $\eta(\beta)=X\beta+\beta_0\mathbf{1}$ is the linear function. The quantity $X$ is still the $n\times p$ standardized feature matrix but in this model $y\in\{0,1\}^n$ is an unstandardized binary response vector; unlike linear regression, the intercept cannot be eliminated through centering in logistic regression.
 
@@ -327,7 +327,7 @@ The group lasso model \citep{yuan2006model} estimates $\beta$ by minimizing
 \begin{equation}
     \label{eq:glasso}
     %\hat{\beta}(\lambda) = \underset{\beta\in \mathbb{R}^p}{\mathrm{argmin}}
-    \frac{1}{2n}\bigg|\bigg|y - \sum_{g=1}^GX_g\beta_g\bigg|\bigg|_2^2 + \lambda\sum_{g=1}^G\sqrt{p_g}||\beta_g||_2,
+    \frac{1}{2n}\bigg|\bigg|y - \sum_{g=1}^GX_g\beta_g\bigg|\bigg|_2^2 + \lambda\sum_{g=1}^G\sqrt{p_g}\norm{\beta_g}_2,
 \end{equation}
 where $\beta=(\beta_1^T,...,\beta_G^T)^T$, $X_g$ is a $n\times p_g$ sub-matrix consisting of columns of $X$ corresponding to the features in group $g$, $g=1,2,...,G$. In addition to the standardization conditions given in \eqref{eq:std}, we apply an additional standardization at the group level \citep{breheny2015group}:
 \begin{equation}
@@ -341,19 +341,19 @@ We can again use the KKT conditions to derive sequential strong rules. Given $r(
 For safe rule screening, SEDPP rules for group lasso have been derived previously \citep{wang2013lasso}. Below, we extend these results to the adaptive case tend them to it the adaptive EDPP rule for group lasso.
 
 \begin{theorem}[Adaptive EDPP for group lasso]
-  For the group lasso problem \eqref{eq:glasso}, suppose $\lambda_0>\lambda_1>...>\lambda_L$, with $\lambda_0:= \max_g ||X_g^Ty||_2 / (n\sqrt{p_g})$. Under conditions \eqref{eq:std} and \eqref{eq:stdg},
+  For the group lasso problem \eqref{eq:glasso}, suppose $\lambda_0>\lambda_1>...>\lambda_L$, with $\lambda_0:= \max_g \norm{X_g^Ty}_2 / (n\sqrt{p_g})$. Under conditions \eqref{eq:std} and \eqref{eq:stdg},
     \begin{enumerate}
         \item For any $l=1,2,...,L-1$, given $\hat{\beta}(\lambda_l)$, $r(\lambda_l)$ and $\hat{y}(\lambda_l):=\sum_{g=1}^GX_g\hat{\beta}_g(\lambda_l)$, then for some next update point $l+B$ and any $b$ s.t. $l<l+b\leq l+B\leq L$, $\hat{\beta}_g(\lambda_{l+b})=0$ if
         \begin{equation}
             \begin{split}
-                &\left|\left|2\lambda_{l+b}X_g^Tr(\lambda_l)+(\lambda_l-\lambda_{l+b})\left( X_g^Ty-\frac{y^T\hat{y}(\lambda_l)X_g^T\hat{y}(\lambda_l)}{||\hat{y}(\lambda_l)||_2^2}\right)\right|\right|_2\\
-                &<2n\lambda_l\lambda_{l+b}\sqrt{p_g}-(\lambda_l-\lambda_{l+b})\sqrt{n||y||_2^2-\frac{n(y^T\hat{y}(\lambda_l))^2}{||\hat{y}(\lambda_l)||_2^2}}.
+                &\left|\left|2\lambda_{l+b}X_g^Tr(\lambda_l)+(\lambda_l-\lambda_{l+b})\left( X_g^Ty-\frac{y^T\hat{y}(\lambda_l)X_g^T\hat{y}(\lambda_l)}{\norm{\hat{y}(\lambda_l)}_2^2}\right)\right|\right|_2\\
+                &<2n\lambda_l\lambda_{l+b}\sqrt{p_g}-(\lambda_l-\lambda_{l+b})\sqrt{n\norm{y}_2^2-\frac{n(y^T\hat{y}(\lambda_l))^2}{\norm{\hat{y}(\lambda_l)}_2^2}}.
             \end{split}
         \end{equation}
-        \item For l=0, i.e., $\lambda_l=\lambda_0$, let $X_*=\arg \max_{X_g} ||X_g^Ty||_2 / (n\sqrt{p_g})$ with dimension $n\times p_*$, then for some next update point $B$ and any $b$ s.t. $0<b\leq B\leq L$, $\hat{\beta}_g(\lambda_{b})=0$ if
+        \item For l=0, i.e., $\lambda_l=\lambda_0$, let $X_*=\arg \max_{X_g} \norm{X_g^Ty}_2 / (n\sqrt{p_g})$ with dimension $n\times p_*$, then for some next update point $B$ and any $b$ s.t. $0<b\leq B\leq L$, $\hat{\beta}_g(\lambda_{b})=0$ if
         \begin{align}
             \begin{gathered}
-                \left|\left|(\lambda_0+\lambda_b)X_g^Ty-(\lambda_0-\lambda_b)X_g^TX_*X_*^Ty\right|\right|_2\\<2n\lambda_0\lambda_b\sqrt{p_g}-(\lambda_0-\lambda_b)\sqrt{n||y||_2^2-n^2\lambda_0^2p_*}.
+                \left|\left|(\lambda_0+\lambda_b)X_g^Ty-(\lambda_0-\lambda_b)X_g^TX_*X_*^Ty\right|\right|_2\\<2n\lambda_0\lambda_b\sqrt{p_g}-(\lambda_0-\lambda_b)\sqrt{n\norm{y}_2^2-n^2\lambda_0^2p_*}.
             \end{gathered}
         \end{align}
     \end{enumerate}

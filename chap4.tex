@@ -6,12 +6,12 @@
 Consider the linear regression setting with $n$ samples and $p$ features, and let $\boldsymbol y$ denote the vector of $n$ responses and $X=[\boldsymbol x_1,...,\boldsymbol x_p]$ denote the $n\times p$ matrix of features. The elastic net \citep{zou2005regularization} is defined by the optimization problem 
 \begin{equation}
     \label{eq:enet0}
-    \underset{\beta\in \mathbb{R}^p}{\mathrm{min}}\frac{1}{2}||\boldsymbol y-X\boldsymbol\beta||_2^2+n\lambda_1||\boldsymbol\beta||_1+\frac{n}{2}\lambda_2||\boldsymbol\beta||_2^2,
+    \underset{\beta\in \mathbb{R}^p}{\mathrm{min}}\frac{1}{2}\norm{\boldsymbol y-X\boldsymbol\beta}_2^2+n\lambda_1\norm{\boldsymbol\beta}_1+\frac{n}{2}\lambda_2\norm{\boldsymbol\beta}_2^2,
 \end{equation}
 where $\lambda_1,\lambda_2> 0$ are tuning parameters that control the sizes of the $L_1$ and $L_2$ penalties and $\boldsymbol\beta\in\mathbb{R}^p$ is the coefficient vector for the $p$ features. In practice, the elastic net is typically reparameterized as
 \begin{equation}
     \label{eq:enet}
-    \underset{\beta\in \mathbb{R}^p}{\mathrm{min}}\frac{1}{2}||\boldsymbol y-X\boldsymbol\beta||_2^2+n\alpha\lambda||\boldsymbol\beta||_1+\frac{n(1-\alpha)}{2}\lambda||\boldsymbol\beta||_2^2,
+    \underset{\beta\in \mathbb{R}^p}{\mathrm{min}}\frac{1}{2}\norm{\boldsymbol y-X\boldsymbol\beta}_2^2+n\alpha\lambda\norm{\boldsymbol\beta}_1+\frac{n(1-\alpha)}{2}\lambda\norm{\boldsymbol\beta}_2^2,
 \end{equation}
 where the tuning parameter $\lambda>0$ controls the overall size of penalty and $\alpha\in(0,1)$ controls the balance between $L_1$ and $L_2$ penalties. This parametrization allows us to tune only the overall size $\lambda$ while keeping $\alpha$ fixed, instead of tuning $\lambda_1$ and $\lambda_2$ at the same time. Since this parameterization makes the tuning parameters both more interpretatble and easier to select, it is usually more preferable in practice. For example, it is the parameterization that appears in the most widely used in the R package \textbf{glmnet}, the most widely used software for fitting elastic net models. For the rest of the paper, we focus only on the reparametrized problem \eqref{eq:enet} and treat $\lambda$ as the only tuning parameter.
 
@@ -30,9 +30,9 @@ In this paper, we propose a powerful, adaptive safe screening method for the ela
 A dual formulation of problem \eqref{eq:enet} can be given by (see Appendix \ref{sec:duale} for details):
 \begin{gather}
         \label{eq:dualtheta}
-        \underset{\boldsymbol\theta\in \mathbb{R}^{ n},\boldsymbol\gamma\in\mathbb{R}^p}{\mathrm{max}}g_\lambda(\boldsymbol\theta,\boldsymbol\gamma)\equiv\frac{1}{2}||\boldsymbol y||_2^2-\frac{\lambda^2}{2}\left\Vert\boldsymbol\theta-\frac{\boldsymbol y}{\lambda}\right\Vert_2^2-\frac{\lambda^2}{2}||\boldsymbol\gamma||_2^2\\
+        \underset{\boldsymbol\theta\in \mathbb{R}^{ n},\boldsymbol\gamma\in\mathbb{R}^p}{\mathrm{max}}g_\lambda(\boldsymbol\theta,\boldsymbol\gamma)\equiv\frac{1}{2}\norm{\boldsymbol y}_2^2-\frac{\lambda^2}{2}\left\Vert\boldsymbol\theta-\frac{\boldsymbol y}{\lambda}\right\Vert_2^2-\frac{\lambda^2}{2}\norm{\boldsymbol\gamma}_2^2\\
         \begin{aligned}s.t.\quad (\boldsymbol\theta,\boldsymbol\gamma)\in \mathcal{F}_\lambda\equiv\{(\boldsymbol\theta,\boldsymbol\gamma):\quad
-            &||X^T\boldsymbol\theta-\sqrt{n(1-\alpha)\lambda}\boldsymbol\gamma||_\infty\leq n\alpha\}\nonumber,
+            &\norm{X^T\boldsymbol\theta-\sqrt{n(1-\alpha)\lambda}\boldsymbol\gamma}_\infty\leq n\alpha\}\nonumber,
         \end{aligned}
 \end{gather}
 where $\boldsymbol\theta\in \mathbb{R}^{n}$ and $\boldsymbol\gamma\in\mathbb{R}^p$ are the dual variables. We will use $\boldsymbol\mu\in \mathbb{R}^{n+p}$ to denote the combined vector $(\boldsymbol \theta,\boldsymbol\gamma)$. The dual problem consists of minimizing the convex function $g_\lambda(\boldsymbol\mu)$ within a convex feasible set $\mathcal{F}_\lambda$. Geometrically, the problem is equivalent to projecting $(\frac{\boldsymbol y}{\lambda},0)$ onto $\mathcal{F}_\lambda$. Letting $\boldsymbol\beta_\lambda$ denote the solution to the primal problem at penalty parameter value $\lambda$ and $\boldsymbol\mu_{\lambda}=(\boldsymbol\theta_{\lambda},\boldsymbol\gamma_\lambda)$ denote the corresponding dual solution, the primal solution and dual solutions are connected by
@@ -89,8 +89,8 @@ In the special case when $\lambda_0=\lambda_{\max}$ as defined in \eqref{eq:lamm
     For any $\lambda_1\in(0,\lambda_{0})$, let $\boldsymbol x_*\equiv\underset{\boldsymbol x_j}{argmax}|\boldsymbol x_j^T\boldsymbol y|$, if $\lambda_0=\lambda_{\max}$, then
     \begin{gather}
         \begin{aligned}
-            T_j(\lambda_{1},\lambda_{0}|\boldsymbol\mu_0)&=\left|\frac{\lambda_{0}+\lambda_1}{2\lambda_{0}\lambda_1}\boldsymbol x_j^T\boldsymbol y-\frac{n\alpha c\lambda_{0}}{2(||\boldsymbol x_*||_2^2+n(1-\alpha)\lambda_1)}\textit{sign}(\boldsymbol x_j^T\boldsymbol y) \boldsymbol x_j^T\boldsymbol x_*\right|+\\
-            &\frac{c}{2}\sqrt{\left(||\boldsymbol x_j||_2^2+n(1-\alpha)\lambda_1\right)\left(||\boldsymbol y||_2^2-\frac{n^2\alpha^2\lambda_{0}^2}{||\boldsymbol x_*||_2^2+n(1-\alpha)\lambda_1}\right)}.
+            T_j(\lambda_{1},\lambda_{0}|\boldsymbol\mu_0)&=\left|\frac{\lambda_{0}+\lambda_1}{2\lambda_{0}\lambda_1}\boldsymbol x_j^T\boldsymbol y-\frac{n\alpha c\lambda_{0}}{2(\norm{\boldsymbol x_*}_2^2+n(1-\alpha)\lambda_1)}\textit{sign}(\boldsymbol x_j^T\boldsymbol y) \boldsymbol x_j^T\boldsymbol x_*\right|+\\
+            &\frac{c}{2}\sqrt{\left(\norm{\boldsymbol x_j}_2^2+n(1-\alpha)\lambda_1\right)\left(\norm{\boldsymbol y}_2^2-\frac{n^2\alpha^2\lambda_{0}^2}{\norm{\boldsymbol x_*}_2^2+n(1-\alpha)\lambda_1}\right)}.
         \end{aligned}
     \end{gather}
 \end{theorem}
@@ -106,7 +106,7 @@ In this section, we derive the two regions $\mathcal{A}^1$ and $\mathcal{A}^2$ t
     \begin{gather}
         \begin{aligned}
             \boldsymbol c_1&=\binom{\boldsymbol\theta_0}{d\boldsymbol\gamma_0}\\
-            r_1&=\sqrt{d^2-1}||\boldsymbol\gamma_0||_2
+            r_1&=\sqrt{d^2-1}\norm{\boldsymbol\gamma_0}_2
         \end{aligned}
     \end{gather}
 \end{theorem}
@@ -142,19 +142,19 @@ where $\xi\in\{-1,1\}$. Sub-problem \eqref{eq:ttilde} is simply a linear functio
 \begin{gather}
     \label{eq:ttildexi}
     \begin{aligned}
-        \Tilde{T}^\xi_j(\lambda_1,\lambda_0,t|\boldsymbol\mu')=&\xi\boldsymbol x_j^T\boldsymbol c_2^\theta+||\boldsymbol x_j||_2r_2\\
+        \Tilde{T}^\xi_j(\lambda_1,\lambda_0,t|\boldsymbol\mu')=&\xi\boldsymbol x_j^T\boldsymbol c_2^\theta+\norm{\boldsymbol x_j}_2r_2\\
         =&\xi\left( \frac{1}{2}(\frac{1-t}{\lambda_0}+c)\boldsymbol x_j^T\boldsymbol y+\frac{t+1}{2}\boldsymbol x_j^T\boldsymbol\theta'\right)\\
-        &+\frac{||\boldsymbol x_j||_2|1-t|}{2}\left\Vert\binom{\boldsymbol\theta'-\left(\frac{1}{\lambda_0}+\frac{c}{1-t}\right)\boldsymbol y}{\boldsymbol\gamma'}\right\Vert_2,\\
+        &+\frac{\norm{\boldsymbol x_j}_2|1-t|}{2}\left\Vert\binom{\boldsymbol\theta'-\left(\frac{1}{\lambda_0}+\frac{c}{1-t}\right)\boldsymbol y}{\boldsymbol\gamma'}\right\Vert_2,\\
     \end{aligned}
 \end{gather}
-where we define $0\cdot||\boldsymbol v_1+\frac{\boldsymbol v_2}{0}||_2\equiv ||\boldsymbol v_2||_2$ for any vectors $\boldsymbol v_1,\boldsymbol v_2$. There is an extra parameter $t$, and this bound will be valid for all $t\geq 0$. The maximum of $\Tilde{T}^\xi_j$ on $\mathcal{A}^1$ does not have a simple closed form, so we consider an upper bound for it instead.
+where we define $0\cdot\norm{\boldsymbol v_1+\frac{\boldsymbol v_2}{0}}_2\equiv \norm{\boldsymbol v_2}_2$ for any vectors $\boldsymbol v_1,\boldsymbol v_2$. There is an extra parameter $t$, and this bound will be valid for all $t\geq 0$. The maximum of $\Tilde{T}^\xi_j$ on $\mathcal{A}^1$ does not have a simple closed form, so we consider an upper bound for it instead.
 
 \begin{theorem}
     \label{thm:2.1}
     For any $\lambda_1<\lambda_{0}\in (0,\lambda_\textrm{max})$, $j=1,2,...,p$ and $\xi=-1,1$, assuming $\boldsymbol\mu_0$ is known, if we define
     \begin{align}
         \begin{gathered}
-            T^\xi_j(\lambda_1,\lambda_0,t|\boldsymbol\mu_0)\equiv\frac{\frac{1-t}{\lambda_0}+c}{2}\xi\boldsymbol x_j^T \boldsymbol y+\frac{t+1}{2}\xi \boldsymbol x_j^T \boldsymbol \theta_{0}\\+\frac{t+1+|1-t|}{2}||\boldsymbol x_j||_2\sqrt{d^2-1}||\boldsymbol\gamma_{0}||_2+\frac{||\boldsymbol x_j||_2}{2}\left\Vert\binom{(1-t)\boldsymbol\theta_{0}-\left(\frac{1-t}{\lambda_0}+c\right)\boldsymbol y}{(1-t)d\boldsymbol\gamma_{0}}\right\Vert_2,
+            T^\xi_j(\lambda_1,\lambda_0,t|\boldsymbol\mu_0)\equiv\frac{\frac{1-t}{\lambda_0}+c}{2}\xi\boldsymbol x_j^T \boldsymbol y+\frac{t+1}{2}\xi \boldsymbol x_j^T \boldsymbol \theta_{0}\\+\frac{t+1+|1-t|}{2}\norm{\boldsymbol x_j}_2\sqrt{d^2-1}\norm{\boldsymbol\gamma_{0}}_2+\frac{\norm{\boldsymbol x_j}_2}{2}\left\Vert\binom{(1-t)\boldsymbol\theta_{0}-\left(\frac{1-t}{\lambda_0}+c\right)\boldsymbol y}{(1-t)d\boldsymbol\gamma_{0}}\right\Vert_2,
             %&=\xi \boldsymbol x_j^T \boldsymbol c_1^\theta+||\boldsymbol x_j||_2\left(\sqrt{c(\lambda_0-\lambda_1)}||\boldsymbol c_1^\gamma||_2+\sqrt{1+c(\lambda_0-\lambda_1)}r_1\right).
         \end{gathered}
     \end{align}
@@ -164,28 +164,28 @@ where we define $0\cdot||\boldsymbol v_1+\frac{\boldsymbol v_2}{0}||_2\equiv ||\
 If we define $\boldsymbol r_0\equiv \boldsymbol y-X\boldsymbol\beta_{0}$ and $\hat{\boldsymbol y}_{0}\equiv X\boldsymbol\beta_{0}$, then the results above can be expressed in primal variables:
 \begin{align*}
     T^\xi_j(&\lambda_1,\lambda_0,t|\boldsymbol\mu_0)=  \left(\frac{1-t}{2\lambda_0}+\frac{c}{2}\right)\xi\boldsymbol x_j^T \boldsymbol y+\frac{t+1}{2\lambda_0}\xi \boldsymbol x_j^T \boldsymbol r_{0}\\
-    &+\frac{t+1+|1-t|}{2\lambda_0}||\boldsymbol x_j||_2\sqrt{(d^2-1)n(1-\alpha) \lambda_0}||\boldsymbol\beta_{0}||_2\\
-    &+\frac{||\boldsymbol x_j||_2}{2\lambda_0}\sqrt{(1-t)^2||\hat{\boldsymbol y}_{0}||_2^2+c^2\lambda_0^2||\boldsymbol y||_2^2+2(1-t)c\lambda_0 \boldsymbol y^T\hat{\boldsymbol y}_{0}+(1-t)^2d^2n(1-\alpha)\lambda_0||\boldsymbol\beta_{0}||_2^2}.
+    &+\frac{t+1+|1-t|}{2\lambda_0}\norm{\boldsymbol x_j}_2\sqrt{(d^2-1)n(1-\alpha) \lambda_0}\norm{\boldsymbol\beta_{0}}_2\\
+    &+\frac{\norm{\boldsymbol x_j}_2}{2\lambda_0}\sqrt{(1-t)^2\norm{\hat{\boldsymbol y}_{0}}_2^2+c^2\lambda_0^2\norm{\boldsymbol y}_2^2+2(1-t)c\lambda_0 \boldsymbol y^T\hat{\boldsymbol y}_{0}+(1-t)^2d^2n(1-\alpha)\lambda_0\norm{\boldsymbol\beta_{0}}_2^2}.
 \end{align*}
 
 Since $T_j(\lambda_1,\lambda_0,t|\boldsymbol\mu_0)$ maximizes the above over $\xi=-1,1$,
 \begin{align}
     \label{eq:t}
     T_j(&\lambda_1,\lambda_0,t|\boldsymbol\mu_0)= \left| \left(\frac{1-t}{2\lambda_0}+\frac{c}{2}\right)\boldsymbol x_j^T \boldsymbol y+\frac{t+1}{2\lambda_0} \boldsymbol x_j^T \boldsymbol r_{0}\right|\\
-    &+\frac{t+1+|1-t|}{2\lambda_0}||\boldsymbol x_j||_2\sqrt{(d^2-1)n(1-\alpha)\lambda_0 }||\boldsymbol\beta_{0}||_2\\
-    &+\frac{||\boldsymbol x_j||_2}{2\lambda_0}\sqrt{(1-t)^2||\hat{\boldsymbol y}_{0}||_2^2+c^2\lambda_0^2||\boldsymbol y||_2^2+2(1-t)c\lambda_0 \boldsymbol y^T\hat{\boldsymbol y}_{0}+(1-t)^2d^2n(1-\alpha)\lambda_0||\boldsymbol\beta_{0}||_2^2}.
+    &+\frac{t+1+|1-t|}{2\lambda_0}\norm{\boldsymbol x_j}_2\sqrt{(d^2-1)n(1-\alpha)\lambda_0 }\norm{\boldsymbol\beta_{0}}_2\\
+    &+\frac{\norm{\boldsymbol x_j}_2}{2\lambda_0}\sqrt{(1-t)^2\norm{\hat{\boldsymbol y}_{0}}_2^2+c^2\lambda_0^2\norm{\boldsymbol y}_2^2+2(1-t)c\lambda_0 \boldsymbol y^T\hat{\boldsymbol y}_{0}+(1-t)^2d^2n(1-\alpha)\lambda_0\norm{\boldsymbol\beta_{0}}_2^2}.
 \end{align}
 
 Last, we need to choose a $t\geq 0$. An optimal choice will be the $t$ that minimizes $T^\xi_j(\lambda_1,\lambda_0,t|\boldsymbol\mu_0)$. However, this choice results in a complicated form for $t$. Furthermore, this would involve choosing a different value of $t$ for each feature, which involves additional computation costs that may outweigh any gains from screening. Instead, we choose $t$ by minimizing the simpler objective
 \begin{equation}
-    \frac{t}{2}||\tilde{\boldsymbol x}_j||_2\sqrt{d^2-1}||\boldsymbol\gamma_{0}||_2+\frac{||\boldsymbol x_j||_2}{2}\left\Vert\binom{(1-t)\boldsymbol\theta_{0}-\left(\frac{1-t}{\lambda_0}+c\right)\boldsymbol y}{(1-t)d\boldsymbol\gamma_{0}}\right\Vert_2,
+    \frac{t}{2}\norm{\tilde{\boldsymbol x}_j}_2\sqrt{d^2-1}\norm{\boldsymbol\gamma_{0}}_2+\frac{\norm{\boldsymbol x_j}_2}{2}\left\Vert\binom{(1-t)\boldsymbol\theta_{0}-\left(\frac{1-t}{\lambda_0}+c\right)\boldsymbol y}{(1-t)d\boldsymbol\gamma_{0}}\right\Vert_2,
 \end{equation}
 which occurs at
 \begin{multline}
     \label{eq:tn0}
-    t=0\vee\left(1+\frac{c\lambda_0\boldsymbol y^T\hat{\boldsymbol y}_{0}}{||\hat{\boldsymbol y}_{0}||_2^2+d^2\lambda_0n(1-\alpha)||\boldsymbol\beta_{0}||_2^2}\right.\\
-    \left.-c\lambda_0\sqrt{\frac{||\boldsymbol y||_2^2\left(||\hat{\boldsymbol y}_{0}||_2^2+d^2\lambda_0n(1-\alpha)||\boldsymbol\beta_{0}||_2^2\right)-\boldsymbol y^T\hat{\boldsymbol y}_{0}}{||\hat{\boldsymbol y}_{0}||_2^2+\lambda_0n(1-\alpha)||\boldsymbol\beta_{0}||_2^2}}
-    \frac{||\boldsymbol\beta_{0}||_2\sqrt{(d^2-1)\lambda_0n(1-\alpha)}}{||\hat{\boldsymbol y}_{0}||_2^2+d^2\lambda_0n(1-\alpha)||\boldsymbol\beta_{0}||_2^2}\right).
+    t=0\vee\left(1+\frac{c\lambda_0\boldsymbol y^T\hat{\boldsymbol y}_{0}}{\norm{\hat{\boldsymbol y}_{0}}_2^2+d^2\lambda_0n(1-\alpha)\norm{\boldsymbol\beta_{0}}_2^2}\right.\\
+    \left.-c\lambda_0\sqrt{\frac{\norm{\boldsymbol y}_2^2\left(\norm{\hat{\boldsymbol y}_{0}}_2^2+d^2\lambda_0n(1-\alpha)\norm{\boldsymbol\beta_{0}}_2^2\right)-\boldsymbol y^T\hat{\boldsymbol y}_{0}}{\norm{\hat{\boldsymbol y}_{0}}_2^2+\lambda_0n(1-\alpha)\norm{\boldsymbol\beta_{0}}_2^2}}
+    \frac{\norm{\boldsymbol\beta_{0}}_2\sqrt{(d^2-1)\lambda_0n(1-\alpha)}}{\norm{\hat{\boldsymbol y}_{0}}_2^2+d^2\lambda_0n(1-\alpha)\norm{\boldsymbol\beta_{0}}_2^2}\right).
 \end{multline}
 This choice of $t$ does not depend on $\boldsymbol x_j$ but will still be close to the optimal choice. In the rest of the paper, we use $T_j(\lambda_1,\lambda_0|\boldsymbol\mu_0)$ to denote $T_j(\lambda_1,\lambda_0,t|\boldsymbol\mu_0)$ using the value of $t$ given in \eqref{eq:tn0}, and it serves as the upper bound in \eqref{eq:boundbound}.
 
@@ -234,14 +234,14 @@ An algorithm utilizing the adaptive safe screening framework in Chapter \ref{MET
         \uIf{Update conditions met}{
             $\lambda_\textrm{ref}=\lambda_{l}$
             
-            Compute and save: $\{\boldsymbol x_j^T\boldsymbol r_\textrm{ref}\}_{j=1}^p, ||\boldsymbol\beta_\textrm{ref}||_2$.}
+            Compute and save: $\{\boldsymbol x_j^T\boldsymbol r_\textrm{ref}\}_{j=1}^p, \norm{\boldsymbol\beta_\textrm{ref}}_2$.}
             
     }
     \Output{$\{\boldsymbol\beta_l\}_{l=1}^L$}
     \caption{Pathwise elastic net algorithm with adaptive SPARSE rule screening}
 \end{algorithm}
 
-Assuming the typical setting of a high-dimensional data set where $p\xrightarrow[]{}\infty$, the computational cost in SPARSE rule (Theorem \ref{thm:0.1} or \eqref{eq:t},\eqref{eq:tn0}) is approximately the cost of computing $\boldsymbol x_j^T\boldsymbol y,\boldsymbol x_j^T\boldsymbol x_*,\boldsymbol x_j^T\boldsymbol r_\textrm{ref}$ and $||\boldsymbol\beta_\textrm{ref}||_2$. The first two terms only need to be computed once and can be reused for the whole path. The latter two only need to be updated when updating the reference and can be reused until it is updated. The remaining quantities in SPARSE rule are essentially free of cost, as they involve minimal computation.
+Assuming the typical setting of a high-dimensional data set where $p\xrightarrow[]{}\infty$, the computational cost in SPARSE rule (Theorem \ref{thm:0.1} or \eqref{eq:t},\eqref{eq:tn0}) is approximately the cost of computing $\boldsymbol x_j^T\boldsymbol y,\boldsymbol x_j^T\boldsymbol x_*,\boldsymbol x_j^T\boldsymbol r_\textrm{ref}$ and $\norm{\boldsymbol\beta_\textrm{ref}}_2$. The first two terms only need to be computed once and can be reused for the whole path. The latter two only need to be updated when updating the reference and can be reused until it is updated. The remaining quantities in SPARSE rule are essentially free of cost, as they involve minimal computation.
 
 In step \ref{step:strong}, any screening methods can be implemented regardless of whether or not they are safe. For example, active set cycling \citep{lee2007efficient}, strong rule \citep{Tibshirani2012}, no additional screening (simply $\mathcal{R}_l=\mathcal{S}_l$) or any combination of screening methods. In our numerical experiments, we use a combination of strong rules on top of active set cycling as experiments show this provide the greatest benefit. Active set cycling is a simple idea that eliminates all the features that have zero coefficients in the previous solution $\lambda_{l-1}$ and does not require any computation. The strong rule eliminates feature $j$ if
 \begin{equation}
