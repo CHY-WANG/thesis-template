@@ -6,3 +6,4 @@ thesis.pdf
 *.lot
 *.toc
 *.lof
+*eps-converted*
